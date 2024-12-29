@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Quest - 背單字遊戲</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-image: linear-gradient(to bottom right, #87cefa, #f0e68c);
+            background-attachment: fixed;
+            background-size: cover;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #333;
+            font-size: 2em;
+            text-shadow: 1px 1px 2px #aaa;
+        }
+        .clue {
+            font-size: 1.2em;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1em;
+            width: 80%;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        .word-info {
+            font-size: 1em;
+            margin-top: 10px;
+            color: #444;
+        }
+        select {
+            padding: 10px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Word Quest - 背單字遊戲</h1>
+        <div id="selection">
+            <p>請選擇題庫：</p>
+            <select id="wordSet">
+                <option value="L7">L7單字</option>
+                <option value="L8">L8單字</option>
+                <option value="L9">L9單字</option>
+            </select>
+            <button id="start">開始遊戲</button>
+        </div>
+        <div id="game" style="display: none;">
+            <p class="clue" id="clue">提示：a_ _ _ e</p>
+            <input type="text" id="answer" placeholder="輸入單字...">
+            <button id="submit">提交答案</button>
+            <button id="back">返回</button>
+            <p class="result" id="result"></p>
+            <p class="word-info" id="wordInfo"></p>
+        </div>
+    </div>
+
+    <script>
+        // 單字資料庫
+        const wordSets = {
+            L7: [
+                { word: "theory", clue: "", translation: "學說；理論" },
+                { word: "psychology", clue: "", translation: "心理學" },
+                { word: "demonstrate", clue: "", translation: "表達" },
+                { word: "interpret", clue: "", translation: "理解;詮釋" },
+                { word: "determine", clue: "", translation: "查明;測出" },
+                { word: "stiff", clue: "", translation: "僵硬的" },
+                { word: "scratch", clue: "", translation: "搔抓" },
+                { word: "exhibit", clue: "", translation: "表達；表露" },
+                { word: "gesture", clue: "", translation: "手勢；姿勢" },
+                { word: "moreover", clue: "", translation: "此外" },
+                { word: "conscious", clue: "", translation: "意識到；注意到" },
+                { word: "observe", clue: "", translation: "觀察" },
+                { word: "reverse", clue: "", translation: "相反的情況或事物" },
+                { word: "significant", clue: "", translation: "重要的；顯著的" },
+                { word: "circumstance", clue: "", translation: "條件；狀況" },
+                { word: "initially", clue: "", translation: "起初" },
+                { word: "glance", clue: "", translation: "匆匆一瞥" },
+                { word: "automatically", clue: "", translation: "無意識的；不假思索的" },
+                { word: "track", clue: "", translation: "追蹤" },
+                { word: "adore", clue: "", translation: "愛慕；熱愛" },
+                { word: "affection", clue: "", translation: "喜愛" },
+                { word: "interact", clue: "", translation: "互動；交流" },
+                { word: "meaningful", clue: "", translation: "有意思的；重要的" },
+                { word: "fellow", clue: "", translation: "同伴的；同事的" }
+            ],
+            L8: [
+                { word: "abuse", clue: "", translation: "虐待" },
+                { word: "highlight", clue: "", translation: "最精采的部分" },
+                { word: "economy", clue: "", translation: "經濟" },
+                { word: "demand", clue: "", translation: "需求；要求" },
+                { word: "illegal", clue: "", translation: "非法的" },
+                { word: "herd", clue: "", translation: "獸群" },
+                { word: "lure", clue: "", translation: "引誘" },
+                { word: "brutal", clue: "", translation: "殘暴的" },
+                { word: "mercilessly", clue: "", translation: "冷酷無情地；殘忍地" },
+                { word: "operator", clue: "", translation: "經營者" },
+                { word: "strike", clue: "", translation: "打；擊" },
+                { word: "commit", clue: "", translation: "做出(錯事)；犯(罪)" },
+                { word: "obedient", clue: "", translation: "服從的；順從的" },
+                { word: "tame", clue: "", translation: "馴服" },
+                { word: "vulnerable", clue: "", translation: "脆弱的；容易受傷的" },
+                { word: "permanent", clue: "", translation: "永久的" },
+                { word: "adequate", clue: "", translation: "充足的；足夠的" },
+                { word: "exhaustion", clue: "", translation: "筋疲力盡" },
+                { word: "complex", clue: "", translation: "複雜的" },
+                { word: "intelligent", clue: "", translation: "聰明的；有才智的" }
+            ],
+            L9: [
+                { word: "pilgrimage", clue: "", translation: "朝聖之旅" },
+                { word: "unify", clue: "", translation: "使....成為一體；凝聚" },
+                { word: "exaggeration", clue: "", translation: "誇張；誇大" },
+                { word: "undoubtedly", clue: "", translation: "無疑地" },
+                { word: "exact", clue: "", translation: "精確的" },
+                { word: "authorities", clue: "", translation: "當局；掌權者" },
+                { word: "cast", clue: "", translation: "擲；拋" },
+                { word: "fade", clue: "", translation: "逐漸消失" },
+                { word: "throng", clue: "", translation: "聚集的人群；一大群人" },
+                { word: "explosive", clue: "", translation: "震耳欲聾的" },
+                { word: "pierce", clue: "", translation: "(光線、聲音等)穿過" },
+                { word: "emerge", clue: "", translation: "出現" },
+                { word: "blessing", clue: "", translation: "神的祝福" },
+                { word: "kneel", clue: "", translation: "跪" },
+                { word: "pavement", clue: "", translation: "(鋪過的)路面" },
+                { word: "hospitality", clue: "", translation: "好客" },
+                { word: "enthusiastically", clue: "", translation: "熱情地" },
+                { word: "facilities", clue: "", translation: "設施" },
+                { word: "accommodations", clue: "", translation: "住宿" },
+                { word: "religious", clue: "", translation: "宗教的" },
+                { word: "humanity", clue: "", translation: "人道；仁慈" },
+                { word: "ritual", clue: "", translation: "宗教儀式" },
+                { word: "belief", clue: "", translation: "宗教信仰" },
+                { word: "designate", clue: "", translation: "指定；認定" },
+                { word: "heritage", clue: "", translation: "(一國家或社會所形成的)遺產" }
+            ]
+        };
+
+        let currentWordSet = [];
+        let currentWord = null;
+
+        // 初始化遊戲
+        function startGame() {
+            const selectedSet = document.getElementById("wordSet").value;
+            currentWordSet = wordSets[selectedSet];
+            document.getElementById("selection").style.display = "none";
+            document.getElementById("game").style.display = "block";
+            loadNextWord();
+        }
+
+        // 載入下一題
+        function loadNextWord() {
+            const randomIndex = Math.floor(Math.random() * currentWordSet.length);
+            currentWord = currentWordSet[randomIndex];
+            const maskedClue = currentWord.word[0] + " _ ".repeat(currentWord.word.length - 2) + currentWord.word[currentWord.word.length - 1];
+            document.getElementById("clue").textContent = `提示：${maskedClue}`;
+            document.getElementById("result").textContent = "";
+            document.getElementById("answer").value = "";
+            updateWordInfo(currentWord.translation);
+        }
+
+        // 更新單字內容
+        function updateWordInfo(translation) {
+            const wordInfo = document.getElementById("wordInfo");
+            wordInfo.textContent = `翻譯：${translation}`;
+        }
+
+        // 檢查答案
+        document.getElementById("submit").addEventListener("click", function () {
+            const userAnswer = document.getElementById("answer").value.trim().toLowerCase();
+            const result = document.getElementById("result");
+
+            if (userAnswer === "") {
+                alert("請輸入答案~~~");
+                return;
+            }
+
+            if (userAnswer === currentWord.word) {
+                result.textContent = "🎉 恭喜答對了！";
+                result.style.color = "green";
+            } else {
+                result.textContent = `❌ 答錯了！正確答案是：${currentWord.word}`;
+                result.style.color = "red";
+            }
+
+            setTimeout(loadNextWord, 1000); 
+        });
+
+        // 綁定返回按鈕
+        document.getElementById("back").addEventListener("click", function () {
+            document.getElementById("game").style.display = "none";
+            document.getElementById("selection").style.display = "block";
+        });
+
+        // 綁定開始按鈕
+        document.getElementById("start").addEventListener("click", startGame);
+    </script>
+</body>
+</html>
